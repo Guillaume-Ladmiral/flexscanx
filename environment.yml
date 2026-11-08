@@ -1,0 +1,28 @@
+# Development environment with all optional dependencies pre-installed
+# For production use: pip install flexscanx[geo,jit]
+name: flexscanx
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - jupyter
+  - ipykernel
+  - numpy
+  - pandas
+  - geopandas
+  - libpysal
+  - shapely
+  - pyproj
+  - rtree
+  - pyogrio
+  - tqdm
+  - cmake
+  - ninja
+  # Test/dev dependencies (audit F-11: the suite cannot run without these;
+  # numba/matplotlib/mapclassify mirror the [jit]/[plot]/[geo] extras)
+  - pytest
+  - numba
+  - matplotlib
+  - mapclassify
+  - scipy

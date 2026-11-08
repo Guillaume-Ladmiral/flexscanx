@@ -1,0 +1,148 @@
+[build-system]
+requires = [
+  "scikit-build-core>=0.9.0",
+  "pybind11>=2.11.0",
+  "setuptools>=68",
+  "wheel"
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "flexscanx"
+version = "0.3.2"
+description = "Flexible and circular spatial scan statistics with a C++17 core"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "PROJECT_FLEXSCANX" }]
+license = { text = "MIT" }
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: C++",
+]
+dependencies = [
+  "numpy>=1.22",
+  "pandas>=1.5",
+  "scipy>=1.9"
+]
+
+[project.optional-dependencies]
+# Test-only dependencies distributed by this project.  The strict B1-B5
+# traminex parity suite installs its independently verified checkout explicitly
+# in CI; this extra must never ask an index to resolve an unowned distribution.
+test = [
+  "pytest>=7.0",
+  "mypy>=1.8"
+]
+plot = [
+  "matplotlib>=3.6"
+]
+geo = [
+  "geopandas>=0.13",
+  "libpysal>=4.8",
+  "shapely>=2.0",
+  "pyproj>=3.5",
+  "mapclassify>=2.6"
+]
+jit = [
+  "numba>=0.58"
+]
+# The BallTree backend and the haversine metric of csr_knn_from_coords need
+# scikit-learn; the default KD-tree path needs only SciPy (a runtime dependency).
+knn = [
+  "scikit-learn>=1.4"
+]
+all = [
+  "matplotlib>=3.6",
+  "geopandas>=0.13",
+  "libpysal>=4.8",
+  "shapely>=2.0",
+  "pyproj>=3.5",
+  "mapclassify>=2.6",
+  "numba>=0.58",
+  "scikit-learn>=1.4"
+]
+
+[tool.flexscanx]
+# Test provenance only: this is the exact traminex revision exercised by the
+# B1-B5 parity suite, not a runtime dependency or a replacement for versioning.
+traminex-tested-commit = "2ed89d77a75d67a4ac319c05da463a1758244503"
+
+[tool.scikit-build]
+build-dir = "build/{wheel_tag}"
+wheel.packages = ["src/flexscanx"]
+wheel.exclude = [
+  "DOCUMENTATION/**",
+  "RFLEXSCAN_ORIGINAL/**",
+  "build-*/**",
+  "archive/**",
+  "audit/**",
+  "docs/superpowers/**",
+  "vignettes/**",
+  "scripts/**",
+  "examples/**",
+]
+cmake.version = ">=3.18"
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+extend-exclude = '''
+/(
+    archive
+  | audit
+  | RFLEXSCAN_ORIGINAL
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+exclude = [
+  "build",
+  "dist",
+  "__pycache__",
+  ".venv",
+  ".venv-test",
+  "archive",
+  "audit",
+  "RFLEXSCAN_ORIGINAL",
+]
+
+[tool.ruff.lint]
+select = ["E","F","W","I"]
+ignore = []
+
+# Ensure source distributions exclude large legacy docs and misc folders, and
+# the repository-governance material whose content is the local family layout
+# (absolute sibling paths); scripts/verify_release_artifacts.py enforces the same
+# list (FXA-183).  tests/test_repository_guidance.py tests those documents and
+# ships with none of them, so it stays out too.
+[tool.scikit-build.sdist]
+exclude = [
+  "DOCUMENTATION/**",
+  "RFLEXSCAN_ORIGINAL/**",
+  "build-*/**",
+  "archive/**",
+  "audit/**",
+  "docs/superpowers/**",
+  "vignettes/**",
+  "scripts/**",
+  "examples/**",
+  "AGENTS.md",
+  "ECOSYSTEM.md",
+  "DUPLICATES.md",
+  "MIGRATION_PLAN.md",
+  "CLAUDE.md",
+  "docs/DEVELOPER_GUIDE.md",
+  "docs/README.md",
+  "docs/SUPERVISOR_NOTES.md",
+  "tests/test_repository_guidance.py",
+]
+
+[tool.pytest.ini_options]
+addopts = "-p no:cacheprovider"
+
+[tool.flexscanx.docs]
+status = "Release v0.3.2 — 2026-11-08; licensing decision D8 open"
+doc_year = 2026
+release_date = "2026-11-08"
+last_updated = "2026-11-08"

@@ -1,0 +1,100 @@
+NOTICES FOR THIRD-PARTY ADAPTED CODE
+=====================================
+
+This directory (flexscanx/sequence) contains code adapted from the
+third-party traminex project, used under the MIT License. The following
+functions were inspired by or adapted from the traminex source:
+
+  - seq_trans()  in analysis.py
+      Deliberate in-sync copy of traminex's dataset-level transition matrix.
+      seq_trans returns a from->to matrix: with normalize=True it equals the
+      transition-rate matrix traminex.seqtrate(count=False); with
+      normalize=False it equals the raw transition-count matrix
+      traminex.seqtrate(count=True). traminex.seqtransn(x, norm=...) is a
+      separate per-sequence transition-count statistic, not a matrix API. The
+      lag>1 form is a flexscanx extension with no traminex counterpart.
+      Behaviour parity is verified by tests/test_traminex_parity_b2_trans.py.
+
+  - seq_entropy() in analysis.py
+      Cross-sectional (by_time=True) form is a deliberate in-sync copy of
+      traminex.seqstatd(include_missing=True)'s normalized Entropy row:
+      natural-log Shannon entropy of each time point's state distribution
+      divided by log(K) (K = alphabet size), in [0, 1]. Missing categorical
+      values are counted as an alphabet state wherever they occur; this
+      deliberately differs from seqstatd's include_missing=False default, and
+      the oracle STS must keep every missing value (trailing ones included) as
+      the not-recorded state, i.e. seqdef(..., right=None). Since v0.0.2 this
+      is the default (normalize=True); normalize=False recovers the old
+      unnormalized bits. The longitudinal (by_time=False) overall-diversity
+      form is flexscanx's own statistic with no traminex counterpart.
+      Behaviour parity, including the missing-value case against both
+      include_missing settings, is verified by
+      tests/test_traminex_parity_b3_entropy.py.
+
+  - seq_freq()   in analysis.py
+      Deliberate in-sync copy of traminex.seqtab: a frequency table of distinct
+      whole-sequence patterns with counts and proportions, sorted by descending
+      count. flexscanx labels patterns as integer-state tuples; traminex.seqtab
+      labels them as "-"-joined state strings, but the per-pattern counts and
+      proportions are identical. Behaviour parity is verified by
+      tests/test_traminex_parity_b4_freq.py.
+
+  - seq_iplot() / seq_dplot() / seq_fplot() in plotting.py
+      Deliberate in-sync copies of traminex's sequence plots, matched at the
+      data level (figure styling intentionally differs):
+        * seq_dplot's per-position state-distribution (stacked-bar heights)
+          equals traminex.seqstatd(include_missing=True)'s Frequencies matrix
+          on an STS whose missing values are all kept as the not-recorded
+          state (seqdef(..., right=None)). flexscanx labels its missing state
+          "Missing"; traminex appends the not-recorded state as the last
+          alphabet entry, so only the labelled per-state values—not raw column
+          position—are equivalent when missing values occur (verified against
+          both include_missing settings).
+        * seq_fplot's pattern proportions (bar widths) come from seq_freq,
+          which equals traminex.seqtab (see seq_freq above).
+        * seq_iplot draws one image row per input sequence in input order
+          (row 0 at top), the same row->sequence convention as
+          traminex.sequence_index_plot (which imshows x.data directly);
+          flexscanx maps states to colors while traminex maps state codes
+          through a colormap (a styling difference, not a data difference).
+      Data-level parity is verified by tests/test_traminex_parity_b5_plots.py.
+
+  - sequence conversion helpers in _utils.py
+      Adapted from traminex sequence handling utilities (flexscanx's own
+      extract_sequences / state-matrix helpers; no traminex parity target).
+
+  - seq_dist_hamming() in distances.py
+      Deliberate in-sync copy of traminex's Hamming distance
+      (traminex.seqdist(method="HAM", norm="maxlength"), i.e. mismatches /
+      length); the raw form matches default traminex HAM (norm="none"). The
+      per-position-weighted form mirrors traminex's explicit-subm DHD path
+      (traminex.distances.pairwise(method="DHD", subm=...)). Behaviour parity
+      is verified by tests/test_traminex_parity_b1_hamming.py.
+      (The former seq_dist_gower() wrapper was removed in v0.0.1; it no longer
+      exists in distances.py.)
+
+Original traminex MIT License
+------------------------------
+
+MIT License
+
+Copyright (c) traminex contributors
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

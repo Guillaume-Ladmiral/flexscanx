@@ -1,0 +1,19 @@
+# Ignore heavy or restricted folders for Quarto project scanning
+.pytest_cache/
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+.venv-test/
+.git/
+.vscode/
+.idea/
+.build/
+build/
+build-*/
+build-tests/
+build-msvc/
+build-audit/
+CMakeFiles/
+*.egg-info/
+dist/
+OLDSTUFF/

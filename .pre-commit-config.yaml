@@ -1,0 +1,33 @@
+# archive/, audit/, and RFLEXSCAN_ORIGINAL/ hold frozen evidence or provenance;
+# formatters must not rewrite those trees.
+exclude: ^(archive/|audit/|RFLEXSCAN_ORIGINAL/)
+
+repos:
+  - repo: https://github.com/psf/black
+    rev: 26.5.1
+    hooks:
+      - id: black
+        language_version: python3
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.20
+    hooks:
+      - id: ruff
+        args: [--fix]
+        types_or: [python]
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v17.0.6
+    hooks:
+      - id: clang-format
+        files: \.(c|cc|cpp|h|hpp)$
+  - repo: local
+    hooks:
+      - id: check-docs-hygiene
+        name: Check documentation hygiene
+        entry: python scripts/check_docs_hygiene.py
+        # language: python lets pre-commit manage the interpreter (audit F-12:
+        # `language: system` invoked bare `python`, which the Windows Store
+        # alias intercepts on hosts without python on PATH).
+        language: python
+        pass_filenames: false
+        files: ^(README\.md|DOCS\.md|DOCUMENTATION_INDEX\.md|CHANGELOG\.md|API_REFERENCE\.md|docs/|DOCUMENTATION/|vignettes/)
+        stages: [pre-commit]

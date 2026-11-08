@@ -1,0 +1,200 @@
+name: CI
+
+permissions:
+  contents: read
+
+env:
+  TRAMINEX_REF: 2ed89d77a75d67a4ac319c05da463a1758244503
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+        extra: ['base', 'jit', 'geo']
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Setup pip cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            pip-${{ runner.os }}-${{ matrix.python-version }}-
+            pip-${{ runner.os }}-
+      - name: Setup CMake build cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            build
+            ~/.ccache
+            ~/Library/Caches/ccache
+            ~/AppData/Local/ccache
+          key: cmake-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('CMakeLists.txt', 'src/flexscanx_core/**/*.cpp', 'src/flexscanx_core/**/*.hpp') }}
+          restore-keys: |
+            cmake-${{ runner.os }}-${{ matrix.python-version }}-
+            cmake-${{ runner.os }}-
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -U build wheel
+      - name: Install package (editable) with extras
+        run: |
+          if [ "${{ matrix.extra }}" = "base" ]; then
+            python -m pip install -e .
+          elif [ "${{ matrix.extra }}" = "jit" ]; then
+            python -m pip install -e .[jit]
+          else
+            python -m pip install -e .[geo,plot]
+          fi
+        shell: bash
+      - name: Build and run C++ unit tests
+        if: matrix.extra == 'base' && matrix.python-version == '3.12'
+        run: |
+          cmake -S . -B build-cpp-tests -DFLEXSCANX_BUILD_PYEXT=OFF -DFLEXSCANX_BUILD_CPP_TESTS=ON
+          cmake --build build-cpp-tests --config Release --target flexscanx_core_tests
+          build-cpp-tests/flexscanx_core_tests
+        shell: bash
+      - name: Lint (ruff, black)
+        run: |
+          # Pinned to the .pre-commit-config.yaml revisions so a commit that passes the
+          # local hooks cannot fail here on a formatter-version difference (FXA-197).
+          python -m pip install "ruff==0.15.20" "black==26.5.1"
+          ruff check src tests scripts
+          black --check src tests scripts
+      - name: Native formatting (clang-format, same revision as the pre-commit hook)
+        if: matrix.extra == 'base' && matrix.python-version == '3.12'
+        run: |
+          # FXA-198: three committed headers had drifted from the hook's formatting, so
+          # every edit to them dragged unrelated re-wrapping into the diff; CI now enforces it.
+          python -m pip install "clang-format==17.0.6"
+          clang-format --dry-run --Werror $(git ls-files 'src/flexscanx_core/*.cpp' 'src/flexscanx_core/*.hpp' 'tests/cpp/*.cpp')
+        shell: bash
+      - name: Check API docs/signature consistency
+        run: |
+          python scripts/sync_docs_metadata.py --check
+          python scripts/check_docs_signatures.py
+          python scripts/check_docs_hygiene.py
+      - name: Release gate sanity (repo/docs/contracts/type/env-smoke)
+        if: matrix.python-version == '3.12' && matrix.extra == 'base'
+        run: |
+          python -m pip install -U mypy pytest
+          python scripts/release_sanity.py
+      - name: Verify base test collection
+        if: matrix.python-version == '3.12' && matrix.extra == 'base'
+        run: |
+          python -m pip install -U pytest
+          pytest --collect-only -q
+      - name: Run tests
+        env:
+          FLEXSCANX_DISABLE_JIT: ${{ matrix.extra == 'jit' && '0' || '1' }}
+        run: |
+          python -m pip install -U pytest
+          pytest -q
+
+  traminex-parity:
+    name: Exact traminex test-time parity
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - name: Install the tested traminex revision
+        shell: bash
+        env:
+          TRAMINEX_REPO: ${{ secrets.TRAMINEX_REPO || vars.TRAMINEX_REPO }}
+        run: |
+          if [[ -z "${TRAMINEX_REPO}" ]]; then
+            echo "::error::Set TRAMINEX_REPO to a cloneable traminex Git URL."
+            exit 1
+          fi
+          git clone "${TRAMINEX_REPO}" "${RUNNER_TEMP}/traminex"
+          git -C "${RUNNER_TEMP}/traminex" checkout --detach "${TRAMINEX_REF}"
+          actual_ref="$(git -C "${RUNNER_TEMP}/traminex" rev-parse HEAD)"
+          test "${actual_ref}" = "${TRAMINEX_REF}"
+          python -m pip install -e "${RUNNER_TEMP}/traminex"
+      - name: Install Flexscanx test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[plot]" pytest
+      - name: Run B1-B5 against the exact test-time oracle
+        env:
+          FLEXSCANX_PARITY_STRICT: '1'
+        run: |
+          pytest -q \
+            tests/test_traminex_parity_b1_hamming.py \
+            tests/test_traminex_parity_b2_trans.py \
+            tests/test_traminex_parity_b3_entropy.py \
+            tests/test_traminex_parity_b4_freq.py \
+            tests/test_traminex_parity_b5_plots.py
+
+  render-vignettes:
+    name: Render vignettes (Quarto)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - name: Install package with geo and plot extras and pyogrio
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[geo,plot] pyogrio
+      - name: Setup Quarto
+        uses: quarto-dev/quarto-actions/setup@8a96df13519ee81fd526f2dfca5962811136661b # v2
+      - name: Render vignettes
+        run: |
+          python scripts/render_all.py --include-heavy
+
+  artifact-verification:
+    name: Build and verify release artifacts
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - name: Install artifact validation tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -U build twine auditwheel
+      - name: Verify checkout and sdist-built wheels
+        run: |
+          python scripts/verify_release_artifacts.py
+
+  bench-linux:
+    name: Linux time-slice benches
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.11'
+      - name: Install package (jit extra)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .[jit]
+      - name: Run time-slice bench T=32 simcount=199
+        run: |
+          mkdir -p bench_artifacts
+          python scripts/bench_timeslices.py --grid 100 --K 50 --T 32 --workers 1,2,4,8 --simcount 199 -o bench_artifacts/perf_timeslices_T32_sim199_linux.csv
+      - name: Run time-slice bench T=64 simcount=199
+        run: |
+          python scripts/bench_timeslices.py --grid 100 --K 50 --T 64 --workers 1,2,4,8 --simcount 199 -o bench_artifacts/perf_timeslices_T64_sim199_linux.csv
+      - name: Upload bench artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: bench-results
+          path: bench_artifacts/*.csv

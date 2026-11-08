@@ -1,0 +1,23 @@
+project:
+  render:
+    - "DOCUMENTATION/*.qmd"
+    - "vignettes/workflows/*.qmd"
+    - "vignettes/notes/*.qmd"
+
+format:
+  html:
+    embed-resources: true
+    number-sections: true
+    toc: true
+    toc-expand: 4
+    toc-title: Contents
+    code-link: true
+    code-fold: false
+    code-tools: true
+
+execute:
+  enabled: true
+  warning: false
+  kernel: datasci
+
+ipynb-shell-interactivity: all

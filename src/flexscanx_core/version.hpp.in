@@ -1,0 +1,9 @@
+// Auto-generated version header - DO NOT EDIT
+// Generated from pyproject.toml by CMake
+
+#pragma once
+
+#define FLEXSCANX_VERSION "@FLEXSCANX_VERSION@"
+// SHA-256 over the maintained native sources at build time (FXA-168); compared by
+// tests/test_fix20260907_native.py against the working tree.
+#define FLEXSCANX_SOURCE_DIGEST "@FLEXSCANX_SOURCE_DIGEST@"

@@ -1,0 +1,28 @@
+# Normalize line endings
+* text=auto
+
+# Use LF for source files across platforms
+*.py  text eol=lf
+*.pyi text eol=lf
+*.cpp text eol=lf
+*.cc  text eol=lf
+*.cxx text eol=lf
+*.hpp text eol=lf
+*.hh  text eol=lf
+*.h   text eol=lf
+*.md  text eol=lf
+*.toml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sh  text eol=lf
+
+# Keep PowerShell scripts CRLF on Windows
+*.ps1 text eol=crlf
+
+# Treat common binaries as binary (no eol conversion)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+

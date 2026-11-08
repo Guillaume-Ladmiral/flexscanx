@@ -1,0 +1,5 @@
+Checks: '-*,bugprone-*,performance-*'
+WarningsAsErrors: ''
+HeaderFilterRegex: 'src/flexscanx_core/.*'
+FormatStyle: none
+
