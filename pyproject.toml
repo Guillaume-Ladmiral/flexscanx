@@ -9,7 +9,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "flexscanx"
-version = "0.3.2"
+version = "0.3.3"
 description = "Flexible and circular spatial scan statistics with a C++17 core"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -65,7 +65,7 @@ all = [
 [tool.flexscanx]
 # Test provenance only: this is the exact traminex revision exercised by the
 # B1-B5 parity suite, not a runtime dependency or a replacement for versioning.
-traminex-tested-commit = "2ed89d77a75d67a4ac319c05da463a1758244503"
+traminex-tested-commit = "2cbb3472736d0ccce32a291241983a12b8921122"
 
 [tool.scikit-build]
 build-dir = "build/{wheel_tag}"
@@ -142,7 +142,7 @@ exclude = [
 addopts = "-p no:cacheprovider"
 
 [tool.flexscanx.docs]
-status = "Release v0.3.2 — 2026-11-08; licensing decision D8 open"
+status = "Release v0.3.3 — 2026-11-08; licensing decision D8 open"
 doc_year = 2026
 release_date = "2026-11-08"
 last_updated = "2026-11-08"

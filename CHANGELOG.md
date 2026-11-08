@@ -11,6 +11,12 @@
 > stood on that heading's date; they are historical records, not the current
 > baseline, which is recorded in the most recent `audit/*/VERIFICATION.md`.
 
+## v0.3.3 — 2026-11-08
+
+A patch release, by the maintainer's decision of 2026-11-08. Under `src/` only the version changed since v0.3.2.
+The README gains an "Install a release" section with the addresses of the release packages, and the parity tests
+now pin traminex 0.2.3 (`2cbb3472736d0ccce32a291241983a12b8921122`).
+
 ## v0.3.2 — 2026-11-08
 
 A patch release, by the maintainer's decision of 2026-11-08, so that the repository can be made public.

@@ -24,7 +24,7 @@ def test_meta_falls_back_to_repo_pyproject_version_when_package_metadata_is_miss
     monkeypatch.setattr(importlib.metadata, "version", _raise_package_not_found)
 
     mod = _load_meta_module("flexscanx_meta_missing_pkg")
-    assert mod.__version__ == "0.3.2"
+    assert mod.__version__ == "0.3.3"
 
 
 def test_read_pyproject_version_requires_matching_project_name(tmp_path):

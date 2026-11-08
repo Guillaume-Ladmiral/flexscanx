@@ -32,7 +32,7 @@ from typing import Any
 import numpy as np
 import pytest
 
-TRAMINEX_TESTED_COMMIT = "2ed89d77a75d67a4ac319c05da463a1758244503"
+TRAMINEX_TESTED_COMMIT = "2cbb3472736d0ccce32a291241983a12b8921122"
 
 _TRAMINEX_MISSING = (
     "traminex is not importable; sequence parity tests need it at test time. "

@@ -3,7 +3,7 @@
 **Flexible and circular spatial scan statistics with a high-performance C++17 core**
 
 <!-- BEGIN GENERATED: readme_release_metadata -->
-Version 0.3.2 | Release 2026-11-08 | Release v0.3.2 — 2026-11-08; licensing decision D8 open
+Version 0.3.3 | Release 2026-11-08 | Release v0.3.3 — 2026-11-08; licensing decision D8 open
 <!-- END GENERATED: readme_release_metadata -->
 
 `flexscanx` is a Python package for flexible and circular spatial scan statistics with
@@ -33,10 +33,10 @@ time-series workflows, and downstream summary/plotting helpers.
 ### Tested traminex parity revision
 
 The `sequence/` parity suite is tested against traminex commit
-`2ed89d77a75d67a4ac319c05da463a1758244503`. This is test provenance only:
+`2cbb3472736d0ccce32a291241983a12b8921122`. This is test provenance only:
 traminex remains absent from Flexscanx's runtime dependencies and Flexscanx
 continues to install and run standalone. The exact commit matters because
-traminex has changed contracts while retaining version `0.0.8`.
+traminex long changed contracts while keeping version `0.0.8`.
 
 Strict parity runs verify the imported traminex checkout before executing B1-B5:
 
@@ -50,6 +50,24 @@ FLEXSCANX_PARITY_STRICT=1 pytest -q \
 ```
 
 **Divergences from rflexscan (what flexscanx corrects/changes and why):** see [docs/COMPARATIVE_AUDIT_RFLEXSCAN_VS_FLEXSCANX.md](docs/COMPARATIVE_AUDIT_RFLEXSCAN_VS_FLEXSCANX.md). Differences are analysed on the maths; where rflexscan is wrong, flexscanx's behaviour is the deliberate correction.
+
+## Install a release
+
+flexscanx is not on PyPI. Each release is published on the project's GitHub
+[releases page](https://github.com/Guillaume-Ladmiral/flexscanx/releases), with
+its packages and a `SHA256SUMS` file. The compiled wheel is built for Linux
+x86-64 and CPython 3.12; pip takes NumPy, pandas and SciPy from PyPI:
+
+```bash
+python -m pip install https://github.com/Guillaume-Ladmiral/flexscanx/releases/download/v0.3.3/flexscanx-0.3.3-cp312-cp312-linux_x86_64.whl
+python -c "import flexscanx as flx; print('core:', flx.core_version())"
+```
+
+On another platform or Python version (3.10 or newer), install the source
+package `flexscanx-0.3.3.tar.gz` from the same release instead; pip then compiles
+the C++17 core, which needs a C++17 compiler. Optional features come as extras
+(`plot`, `geo`, `jit`, `knn`, `all`); to add one, put its name before the
+address, for example `python -m pip install "flexscanx[plot] @ <wheel address>"`.
 
 ## Install From This Repo
 

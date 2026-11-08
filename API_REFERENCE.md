@@ -1,9 +1,9 @@
 # flexscanx API Reference
 
 <!-- BEGIN GENERATED: api_reference_release_metadata -->
-**Version**: 0.3.2<br>
+**Version**: 0.3.3<br>
 **Release**: 2026-11-08<br>
-**Status**: Release v0.3.2 — 2026-11-08; licensing decision D8 open
+**Status**: Release v0.3.3 — 2026-11-08; licensing decision D8 open
 <!-- END GENERATED: api_reference_release_metadata -->
 
 ---
@@ -1809,4 +1809,4 @@ for t in [0, 6, 11]:  # Start, middle, end
 
 ---
 
-**flexscanx v0.3.2** | MIT License | 2026
+**flexscanx v0.3.3** | MIT License | 2026

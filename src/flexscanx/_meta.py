@@ -5,7 +5,7 @@ from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _pkg_version
 from pathlib import Path
 
-_FALLBACK_VERSION = "0.3.2"
+_FALLBACK_VERSION = "0.3.3"
 _PROJECT_NAME_PATTERN = re.compile(r'^name\s*=\s*"([^"]+)"\s*$')
 _PROJECT_VERSION_PATTERN = re.compile(r'^version\s*=\s*"([^"]+)"\s*$')
 

@@ -4,7 +4,7 @@ permissions:
   contents: read
 
 env:
-  TRAMINEX_REF: 2ed89d77a75d67a4ac319c05da463a1758244503
+  TRAMINEX_REF: 2cbb3472736d0ccce32a291241983a12b8921122
 
 on:
   push:
